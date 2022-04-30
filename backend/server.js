@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 
 //API routes
 app.use("/api/v1/goals", require("./routes/goals"));
+app.use("/api/v1/users", require("./routes/user"));
 
 //error handling
 app.use(notFound);
