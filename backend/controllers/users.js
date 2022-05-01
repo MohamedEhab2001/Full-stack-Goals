@@ -21,7 +21,7 @@ const loginUser = async (req, res) => {
       authenticated: true,
       existed: req.existed,
       correctPassword: correctPassword,
-      token: generateToken(req.id),
+      user: generateToken(req.id),
     });
   } else {
     throw new errors.badRequestError("Bad request", "Password is incorrect");
@@ -33,7 +33,12 @@ const loginUser = async (req, res) => {
 // @access public
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
-
+  if (password.length < 8) {
+    throw new errors.badRequestError(
+      "BAd request",
+      "password must be at least 8 charcters"
+    );
+  }
   // hash password
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
@@ -46,7 +51,7 @@ const registerUser = async (req, res) => {
     });
     return res.status(201).json({
       message: "register user",
-      user: { ...newUser, token: generateToken(newUser._id) },
+      user: { token: generateToken(newUser._id) },
     });
   }
 

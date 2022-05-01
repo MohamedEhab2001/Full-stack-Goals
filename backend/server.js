@@ -5,9 +5,12 @@ const express = require("express");
 const errorHandlerMiddleware = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/not_found");
 const connectDB = require("./config/db");
+var cors = require("cors");
+
 const port = process.env.PORT || 5000;
 const app = express();
 app.use(express.json());
+app.use(cors());
 //extended false to prevent sending nested objects and filtring out the ?
 app.use(express.urlencoded({ extended: false }));
 

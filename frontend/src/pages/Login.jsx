@@ -1,18 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { FaSignInAlt } from "react-icons/fa";
-
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { loginUser, reset, SelectAuth } from "../features/auth/authSlice";
+import Spinner from "../components/Spinner";
 const Login = () => {
   const [formData, setformData] = useState({
     email: "",
     password: "",
   });
   const { email, password } = formData;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isError, isLoading, isSuccess, message } =
+    useSelector(SelectAuth);
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+    if (isSuccess || user) {
+      navigate("/");
+    }
+    dispatch(reset());
+  }, [user, isError, isLoading, message, isSuccess, navigate, dispatch]);
   const onChange = (event) => {
     setformData({ ...formData, [event.target.name]: event.target.value });
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    if (formData.email == "" || formData.password == "") {
+      toast.error("Cant leave any textfield blank");
+    } else {
+      const UserData = {
+        email: formData.email,
+        password: formData.password,
+      };
+      dispatch(loginUser(UserData));
+    }
   };
   return (
     <>
