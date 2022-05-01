@@ -5,7 +5,7 @@ const goalModel = require("../models/goalsModel");
 // @route GET /api/v1/goals
 // @access private
 const getGoals = async (req, res) => {
-  const goals = await goalModel.find({});
+  const goals = await goalModel.find({ user: req.user._id });
   res.status(200).json({ status: "success", goals });
 };
 
@@ -17,7 +17,7 @@ const createGoal = async (req, res) => {
   if (!text) {
     throw new errors.badRequestError("Bad request", "Please provide the goal");
   }
-  const goal = await goalModel.create({ text });
+  const goal = await goalModel.create({ text, user: req.user._id });
   res.status(201).json({ message: "Created successfully", goal: goal });
 };
 
@@ -34,12 +34,19 @@ const updateGoal = async (req, res) => {
       runValidators: true,
     }
   );
+
+  // Check for user
+  if (!req.user) {
+    throw new errors.unathanticatedError("User not found");
+  }
+
   if (!toUpdateGoal) {
     throw new errors.notFoundError(
       "No user with this id",
       "Please make sure that the id is in right format"
     );
   }
+
   res
     .status(200)
     .json({ message: "Updated successfully", newGoal: toUpdateGoal });
@@ -50,6 +57,10 @@ const updateGoal = async (req, res) => {
 // @access private
 const deleteGoal = async (req, res) => {
   const { id: goalID } = req.params;
+  // Check for user
+  if (!req.user) {
+    throw new errors.unathanticatedError("User not found");
+  }
   const toDeleteGoal = await goalModel.findOneAndDelete({ _id: goalID });
   if (!toDeleteGoal) {
     throw new errors.notFoundError(
