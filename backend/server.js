@@ -1,6 +1,6 @@
 require("dotenv").config();
 require("express-async-errors");
-
+const path = require("path");
 const express = require("express");
 const errorHandlerMiddleware = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/not_found");
@@ -17,6 +17,20 @@ app.use(express.urlencoded({ extended: false }));
 //API routes
 app.use("/api/v1/goals", require("./routes/goals"));
 app.use("/api/v1/users", require("./routes/user"));
+
+// serve fronend
+// Serve frontend
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(
+      path.resolve(__dirname, "../", "frontend", "build", "index.html")
+    )
+  );
+} else {
+  app.get("/", (req, res) => res.send("Please set to production"));
+}
 
 //error handling
 app.use(notFound);
