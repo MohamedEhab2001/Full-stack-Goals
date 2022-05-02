@@ -6,7 +6,10 @@ const authenticateUser = async (req, res, next) => {
   const { authorization } = req.headers;
   // check if client sent the auth and in proper format
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    throw new unathanticatedError("401 Un authorized", "Please re-login");
+    throw new unathanticatedError(
+      "401 Un authorized",
+      "You are not Authorized"
+    );
   }
   try {
     //get token
@@ -20,7 +23,7 @@ const authenticateUser = async (req, res, next) => {
   } catch (error) {
     const errorUnAuth = new unathanticatedError(
       error.message,
-      "Please re-login"
+      "unAuthorized request re-login can solve this"
     );
     next(errorUnAuth);
   }

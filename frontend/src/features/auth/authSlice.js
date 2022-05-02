@@ -4,7 +4,8 @@ import authService from "./authService";
 const user = JSON.parse(localStorage.getItem("user"));
 
 const initialState = {
-  user: user ? user : null,
+  user: user ? user : null, // represent the user token
+  userData: {},
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -31,12 +32,25 @@ export const loginUser = createAsyncThunk("auth/loginUser", async (user) => {
   try {
     return await authService.Log(user);
   } catch (error) {
-    console.log(error);
     throw new Error(
       error.response.data.fixIt || error.response.data.msg.split("name: ")[1]
     );
   }
 });
+
+// Authorize the user and get his date
+export const AutherizeUser = createAsyncThunk(
+  "auth/AutherizeUser",
+  async (user) => {
+    try {
+      return await authService.Auth(user);
+    } catch (error) {
+      throw new Error(
+        error.response.data.fixIt || error.response.data.msg.split("name: ")[1]
+      );
+    }
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",
@@ -67,7 +81,7 @@ export const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.user = action.payload;
+        state.userData = action.payload;
       })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -82,6 +96,19 @@ export const authSlice = createSlice({
         state.isError = true;
         state.message = action.error.message;
         state.user = null;
+      })
+      .addCase(AutherizeUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(AutherizeUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.userData = action.payload;
+      })
+      .addCase(AutherizeUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.error.message;
       });
   },
 });
